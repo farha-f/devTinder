@@ -1,39 +1,34 @@
 const express = require('express');
 const app = express();
-const {auth} = require('./middleware/auth');
-app.use("/admin",auth);
-app.get('/admin/getUsers', (req,res)=>{
-    res.send("userdata from admin");
-})
-app.get('/admin/deleteUsers',(req,res)=>{
-    res.send("delete user data from admin");
-})
-// app.use('/data',(req,res, next)=>{
-  
-//     res.send({fname:"John", lname:"Doe"});
-//     console.log("Request received");
-//       next();
+const connectDb = require('./config/database');
+const User = require('./models/user');
+app.post('/signup', async (req,res)=>{
+    const user= new User({
+        firstName:"John",
+        lastName:"Doe",
+        email:"xyz@gmail.com",
+        password:"abcd1234",
+        age:25,
+        gender:"male"
+    });
+    try{
+await user.save();
+    res.send("User signed up successfully");
+    }
+    catch(err){
+        res.status(500).send("Error signing up user" + err.message);
+    }
     
-// },(req, res)=>{
-// res.send("Hello from callback");
-// console.log("Callback executed");
-// })
-// app.get('/data',(req,res)=>{
-//     res.send({fname:"John", lname:"Doe"});
-// });
-// app.get('/data/:userId/:password',(req,res)=>{
-//     console.log(req.params);
-//     res.send({fname:"John", lname:"Doe"});
-// });
-// app.post('/data',(req,res)=>{
-//     res.send("Data Posted Successfully");   
-// });
-// app.use('/test',(req,res)=>{
-//     res.send('hello from server');
-// });
-// app.use('/data',(req,res)=>{
-//     res.send("Here is some data from data");
-// })
-app.listen(3000,()=>{
+});
+connectDb().then(()=>{
+    console.log("Database connected successfully");
+    app.listen(3000,()=>{
     console.log('Server is running on port 3000');
 });
+})
+.catch((err)=>{
+    console.log("Database connection failed", err);
+});
+
+
+//const newUser = new User(userObj);
