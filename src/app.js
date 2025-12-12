@@ -58,7 +58,7 @@ app.delete('/del', async(req, res)=>{
     }
 })
 
-app.put('/update', async(req, res)=>{
+app.patch('/update', async(req, res)=>{
 const _id=req.body._id;
 const data=req.body;
 try{
