@@ -42,7 +42,6 @@ const userSchema = new mongoose.Schema({
     },
     skill:{
         type:[String],
-
     }
 });
 const User= mongoose.model('User',userSchema);

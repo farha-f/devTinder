@@ -61,7 +61,20 @@ app.delete('/del', async(req, res)=>{
 app.patch('/update', async(req, res)=>{
 const _id=req.body._id;
 const data=req.body;
+const skill=req.body.skill;
+
 try{
+    const isAllowedToUpdate=['_id','firstName','lastName','age','photo','about','skill'];
+    const keysToBeUpdated= Object.keys(data).every((key)=>{
+    return isAllowedToUpdate.includes(key);
+});
+if(!keysToBeUpdated){
+    throw new Error('Invalid updates!');
+}
+if(skill.length>5){
+    throw new Error('skills should not exceed!');
+}
+
     await User.findByIdAndUpdate({_id:_id}, data);
     res.send("user updated succesfully");
 }
