@@ -2,31 +2,22 @@ const express = require('express');
 const app = express();
 const connectDb = require('./config/database');
 const User = require('./models/user');
-const validateSignUpData = require('./utils/validator');
+//const validateSignUpData = require('./utils/validator');
 const bcrypt = require('bcrypt');
-app.use(express.json());
-// adding the data 
-app.post('/signup', async (req, res) => {
-    
-    try {
-        validateSignUpData(req);
-    console.log(req.body);
-    const {firstName, lastName, email, password}= req.body;
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = new User({
-        firstName,
-        lastName,
-        email,
-        password: passwordHash
-    });
-        await user.save();
-        res.send("User signed up successfully");
-    }
-    catch (err) {
-        res.status(500).send("Error :" + err.message);
-    }
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const userAuth = require('./middleware/auth');
 
-});
+app.use(express.json());
+app.use(cookieParser());
+
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
+const requestsRouter = require('./routes/requests');
+
+app.use('/', authRouter);
+app.use('/', profileRouter);
+app.use('/', requestsRouter);
 // filtering the data from postman via email
 app.get('/user', async (req, res) => {
     const userEmail = req.body.email;
@@ -46,25 +37,9 @@ app.get('/user', async (req, res) => {
         res.status(500).send("Error signing up user" + err.message);
     }
 });
-// login  the user via postman
-app.post('/login', async(req,res)=>{
-    try{
-        const {email, password}= req.body;
-        const user = await User.findOne({email: email});
-        if(!user){
-            throw new Error('Invalid credentials');
-        }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if(isPasswordValid){
-            res.send("User logged in successfully");
-        }
-        else{
-            throw new Error('Invalid credentials');
-        }
-    } catch(err){
-        res.status(500).send('Error logging in user'+err)
-    }
-});
+
+
+
 // fetching all the users in postman
 app.get('/feed', async (req, res)=>{
     try {
