@@ -1,7 +1,7 @@
 const express = require('express');
 const authRouter = express.Router();
 const User = require('../models/user');
-const validateSignUpData = require('../utils/validator');
+const {validateSignUpData} = require('../utils/validator');
 const bcrypt = require('bcrypt');
 
 // this API is for signup the user via postman(adding the data to the database)
@@ -40,16 +40,27 @@ authRouter.post('/login', async(req,res)=>{
             // create JWT token here
             //const token = await jwt.sign({_id: user._id}, 'DEV@7900TINDER',{expiresIn: '1h'});
             const token = await user.getJWT();
-            console.log("Generated Token:", token);
+            console.log("Generated Token:", token,{
+                expires: new Date(Date.now() + 3600000), // 1 hour
+            });
             //  add token to cookie and send back to browser
             res.cookie('token', token);
             res.send("User logged in successfully");
+            
         }
         else{
             throw new Error('Invalid credentials');
         }
+        // req.user = user;
+        // next();
     } catch(err){
         res.status(500).send('Error logging in user'+err)
     }
 });
+authRouter.post('/logout', (req, res)=>{
+    res.cookie('token', null, {
+        expires: new Date(Date.now()),
+    })
+    res.send("user logged out successfully");
+})
 module.exports = authRouter;
