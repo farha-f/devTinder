@@ -14,7 +14,8 @@ const userAuth = async (req, res, next)=>{
     try{
         const token = req.cookies.token;
         if(!token){
-            throw new Error('Authentication token not found');
+            return res.status(401).send("please login");
+            // throw new Error('Authentication token not found');
         }
         const decodedMessage = jwt.verify(token, 'DEV@7900TINDER');
         const { _id } = decodedMessage;

@@ -17,8 +17,13 @@ authRouter.post('/signup', async (req, res) => {
         email,
         password: passwordHash
     });
-        await user.save();
-        res.send("User signed up successfully");
+        const savedUser=await user.save();
+        const token = await savedUser.getJWT();
+            //  add token to cookie and send back to browser
+            res.cookie('token', token,{
+                expires: new Date(Date.now() + 3600000),
+            });
+        res.send({message:"User signed up successfully",data:savedUser});
     }
     catch (err) {
         res.status(500).send("Error :" + err.message);
@@ -45,7 +50,7 @@ authRouter.post('/login', async(req,res)=>{
             });
             //  add token to cookie and send back to browser
             res.cookie('token', token);
-            res.send("User logged in successfully");
+            res.send(user);
             
         }
         else{
